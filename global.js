@@ -3,13 +3,34 @@ const contactForm = document.getElementById('contactForm');
 if (contactForm) {
     contactForm.addEventListener('submit', function (e) {
         e.preventDefault();
-        const name = document.getElementById('name').value;
-        const email = document.getElementById('email').value;
-        const message = document.getElementById('message').value;
-        const subject = encodeURIComponent("Pesan Baru dari Website: " + name);
-        const body = encodeURIComponent("Nama: " + name + "\nEmail: " + email + "\n\nPesan:\n" + message);
-        window.location.href = `mailto:jshkrsna@gmail.com?subject=${subject}&body=${body}`;
-        alert("Aplikasi email Anda akan terbuka untuk mengirim pesan ini!");
+
+        const submitBtn = contactForm.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerText;
+        submitBtn.innerText = "Mengirim...";
+        submitBtn.disabled = true;
+
+        const formData = new FormData(contactForm);
+
+        fetch("https://formsubmit.co/ajax/jshkrsna@gmail.com", {
+            method: "POST",
+            headers: {
+                'Accept': 'application/json'
+            },
+            body: formData
+        })
+            .then(response => response.json())
+            .then(data => {
+                alert("Pesan berhasil dikirim ke email Anda!");
+                contactForm.reset();
+                submitBtn.innerText = originalText;
+                submitBtn.disabled = false;
+            })
+            .catch(error => {
+                console.error(error);
+                alert("Terjadi kesalahan. Pesan gagal dikirim.");
+                submitBtn.innerText = originalText;
+                submitBtn.disabled = false;
+            });
     });
 }
 
